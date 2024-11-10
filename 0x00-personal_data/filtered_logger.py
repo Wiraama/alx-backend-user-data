@@ -38,7 +38,13 @@ class RedactingFormatter(logging.Formatter):
                 self.SEPARATOR
                 )
 
-PII_FIELDS: Tuple[str, ...] = ("name", "email", "phone", "ssn", "password")
+
+PII_FIELDS: Tuple[str, ...] = (
+        "name",
+        "email",
+        "phone",
+        "ssn",
+        "password")
 
 
 def get_logger() -> logging.Logger:
