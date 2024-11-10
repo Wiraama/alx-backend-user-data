@@ -26,7 +26,7 @@ class RedactingFormatter(logging.Formatter):
 
     def __init__(self):
         super(RedactingFormatter, self).__init__(self.FORMAT)
-        self.fields = fields
+        self.fields: List[str] = fields
 
     def format(self, record: logging.LogRecord) -> str:
         """ formatting logs records """
