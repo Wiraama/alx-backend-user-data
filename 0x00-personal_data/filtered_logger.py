@@ -42,12 +42,12 @@ class RedactingFormatter(logging.Formatter):
 def get_logger() -> logging.Logger:
     """ returns logging.Logger object"""
     logger = logging.getLogger("user_data")
-    logger.setLevel(logger.INFO)
+    logger.setLevel(logging.INFO)
     logger.propagate = False
 
     """ creating a stream handler """
-    steam_handler = logging.StreamHandler()
-    sream_handler.steFormatter(RedactingFormatter(list(PIL_FIELDS)))
-    logger.addHandler(streame_handler)
+    stream_handler = logging.StreamHandler()
+    stream_handler.steFormatter(RedactingFormatter(list(PII_FIELDS)))
+    logger.addHandler(stream_handler)
 
     return logger
