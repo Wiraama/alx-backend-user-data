@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """ modure tu return logging """
 import re
-from typing import List
+from typing import List, Tuple
 import logging
 
 
@@ -37,6 +37,8 @@ class RedactingFormatter(logging.Formatter):
                 original_info,
                 self.SEPARATOR
                 )
+
+PII_FIELDS: Tuple[str, ...] = ("name", "email", "phone", "ssn", "password")
 
 
 def get_logger() -> logging.Logger:
