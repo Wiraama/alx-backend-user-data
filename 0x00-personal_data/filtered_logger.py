@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 """ modure tu return logging """
-import re, logging, os, mysql.connector
+import re
+import logging
+import os
+import mysql.connector
 from mysql.connector import connection
 from typing import List, Tuple
 
