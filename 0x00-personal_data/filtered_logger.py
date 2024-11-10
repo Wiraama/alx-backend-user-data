@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """ modure tu return logging """
-import re
+import re, logging, os, mysql.connector
+from mysql.connector import connection
 from typing import List, Tuple
-import logging
 
 
 def filter_datum(
@@ -59,3 +59,17 @@ def get_logger() -> logging.Logger:
     logger.addHandler(stream_handler)
 
     return logger
+
+def get_db() -> connection.MySQLConnection:
+    """rturns connector to database"""
+    username = os.getenv("PERSONAL_DATA_DB_USERNAME", "root")
+    password = os.getenv("PERSONAL_DATA_DB_PASSWORD", "")
+    host = os.getenv("PERSONAL_DATA_DB_HOST", "localhost")
+    database = os.getenv("PERSONAL_DATA_DB_NAME")
+
+    return mysql.connector.connect(
+            user=username,
+            password=password,
+            host=host,
+            database=database
+            )
