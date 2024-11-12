@@ -36,8 +36,8 @@ auth_type = os.getenv('AUTH_TYPE')
 
 if auth_type == "auth":
     auth = Auth()
-elif auth_type == "another_auth":
-    auth = BasicAuth()
+elif auth_type == "basic_auth":
+    basic_auth = BasicAuth()
 
 
 @app.before_request
