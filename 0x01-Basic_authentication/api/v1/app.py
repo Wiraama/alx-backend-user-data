@@ -1,116 +1,72 @@
 #!/usr/bin/env python3
-""" Module of Basic Authentication
 """
-from api.v1.auth.auth import Auth
-from base64 import b64decode
-from models.user import User
-from typing import TypeVar
+Route module for the API
+"""
+from os import getenv
+from api.v1.views import app_views
+from flask import Flask, jsonify, abort, request
+from flask_cors import (CORS, cross_origin)
+import os
 
 
-class BasicAuth(Auth):
-    """ Basic Authentication Class """
+app = Flask(__name__)
+app.register_blueprint(app_views)
+CORS(app, resources={r"/api/v1/*": {"origins": "*"}})
+auth = None
+AUTH_TYPE = getenv("AUTH_TYPE")
 
-    def extract_base64_authorization_header(self,
-                                            authorization_header: str) -> str:
-        """ Extract Base 64 Authorization Header """
+if AUTH_TYPE == "auth":
+    from api.v1.auth.auth import Auth
+    auth = Auth()
+elif AUTH_TYPE == "basic_auth":
+    from api.v1.auth.basic_auth import BasicAuth
+    auth = BasicAuth()
 
-        if authorization_header is None:
-            return None
 
-        if not isinstance(authorization_header, str):
-            return None
+@app.errorhandler(404)
+def not_found(error) -> str:
+    """ Not found handler
+    """
+    return jsonify({"error": "Not found"}), 404
 
-        if not authorization_header.startswith("Basic "):
-            return None
 
-        encoded = authorization_header.split(' ', 1)[1]
+@app.errorhandler(401)
+def unauthorized_error(error) -> str:
+    """ Unauthorized handler
+    """
+    return jsonify({"error": "Unauthorized"}), 401
 
-        return encoded
 
-    def decode_base64_authorization_header(self,
-                                           base64_authorization_header: str
-                                           ) -> str:
-        """ Decodes the value of a base64 string """
-        if base64_authorization_header is None:
-            return None
-        if not isinstance(base64_authorization_header, str):
-            return None
+@app.errorhandler(403)
+def forbidden_error(error) -> str:
+    """ Forbidden handler
+    """
+    return jsonify({"error": "Forbidden"}), 403
 
-        try:
-            encoded = base64_authorization_header.encode('utf-8')
-            decoded64 = b64decode(encoded)
-            decoded = decoded64.decode('utf-8')
-        except BaseException:
-            return None
 
-        return decoded
+@app.before_request
+def before_request() -> str:
+    """ Before Request Handler
+    Requests Validation
+    """
+    if auth is None:
+        return
 
-    def extract_user_credentials(self,
-                                 decoded_base64_authorization_header: str
-                                 ) -> (str, str):
-        """
-        Returns the user email and password from the
-        Base64 decoded value
-        """
+    excluded_paths = ['/api/v1/status/',
+                      '/api/v1/unauthorized/',
+                      '/api/v1/forbidden/']
 
-        if decoded_base64_authorization_header is None:
-            return None, None
+    if not auth.require_auth(request.path, excluded_paths):
+        return
 
-        if not isinstance(decoded_base64_authorization_header, str):
-            return None, None
+    if auth.authorization_header(request) is None:
+        abort(401)
 
-        if ':' not in decoded_base64_authorization_header:
-            return None, None
+    if auth.current_user(request) is None:
+        abort(403)
 
-        credentials = decoded_base64_authorization_header.split(':', 1)
 
-        return credentials[0], credentials[1]
-
-    def user_object_from_credentials(self, user_email: str,
-                                     user_pwd: str) -> TypeVar('User'):
-        """
-        Returns the User instance based on his
-        email and password
-        """
-        if user_email is None or not isinstance(user_email, str):
-            return None
-
-        if user_pwd is None or not isinstance(user_pwd, str):
-            return None
-
-        try:
-            found_users = User.search({'email': user_email})
-        except Exception:
-            return None
-
-        for user in found_users:
-            if user.is_valid_password(user_pwd):
-                return user
-
-        return None
-
-    def current_user(self, request=None) -> TypeVar('User'):
-        """ overloads Auth and retrieves the User instance for a request """
-        auth_header = self.authorization_header(request)
-
-        if not auth_header:
-            return None
-
-        encoded = self.extract_base64_authorization_header(auth_header)
-
-        if not encoded:
-            return None
-
-        decoded = self.decode_base64_authorization_header(encoded)
-
-        if not decoded:
-            return None
-
-        email, pwd = self.extract_user_credentials(decoded)
-
-        if not email or not pwd:
-            return None
-
-        user = self.user_object_from_credentials(email, pwd)
-
-        return user
+if __name__ == "__main__":
+    host = getenv("API_HOST", "0.0.0.0")
+    port = getenv("API_PORT", "5000")
+    app.run(host=host, port=port)
