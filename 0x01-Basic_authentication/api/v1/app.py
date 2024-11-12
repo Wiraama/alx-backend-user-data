@@ -59,6 +59,7 @@ def before_request() -> str:
     if auth.current_user(request) is None:
         abort(403)
 
+
 @app.errorhandler(403)
 def forbidden(error) -> str:
     """ Forbidden error"""
