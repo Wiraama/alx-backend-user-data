@@ -1,25 +1,20 @@
 #!/usr/bin/env python3
 from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import Column, Integer, String
+from sqlalchemy.orm import declarative_base
 
 
 """ initializing """
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
-db = SQLAlchemy(app)
+Base = declarative_base()
+DATABASE_URI = 'sqlite:///users.db'
 
-
-class User(db.Model):
+class User(Base):
     """ user class of storange """
     __tablename__ = 'users'
 
-    id = db.Column(db.Integer, primary_key=True)
-    email = db.Column(db.String(250), nullable=False)
-    hashed_password = db.Column(db.String(250), nullable=False)
-    session_id = db.Column(db.String(250), nullable=True)
-    reset_token = db.Column(db.String(250), nullable=True)
-
-
-
-with app.app_context():
-    db.create_all()
+    id = Column(Integer, primary_key=True)
+    email = Column(String(250), nullable=False)
+    hashed_password = Column(String(250), nullable=False)
+    session_id = Column(String(250), nullable=True)
+    reset_token = Column(String(250), nullable=True)
