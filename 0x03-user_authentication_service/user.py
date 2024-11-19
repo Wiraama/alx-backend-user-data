@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+""" user model """
 from flask import Flask
 from sqlalchemy import Column, Integer, String
 from sqlalchemy.orm import declarative_base
