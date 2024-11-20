@@ -3,7 +3,7 @@
 import bcrypt
 from db import DB
 from user import User
-
+from sqlalchemy.orm.exc import NoResultFound
 
 def _hash_password(password: str) -> bytes:
     """ returns salted hashed password
@@ -21,22 +21,9 @@ class Auth:
         self._db = DB()
 
     def register_user(self, email: str, password: str) -> User:
+        """ ... """
         try:
-            user_exists = self._db._session.query(User).filter_by(email=email).first()
-            if user_exists:
-                raise ValueError(f"User {email} already exists")
-        except Exception as e:
-            raise ValueError(f"error: {e}")
-        
-        hashed_password = _hash_password(
-                password)
-
-        new_user = User(email=email,
-                hashed_password=hashed_password)
-
-        """ saving to database """
-        self._db._session.add(new_user)
-        self._db._session.commit()
-
-        return new_user
-
+            self._db.find_user_by(email=email)
+        except NoResultFound:
+            return self._db.add_user(email, _hash_password(password))
+        raise ValueError(f"{email} already exists")
