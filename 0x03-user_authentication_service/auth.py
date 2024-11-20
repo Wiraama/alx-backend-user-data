@@ -5,15 +5,17 @@ from db import DB
 from user import User
 
 
+def _hash_password(password: str) -> bytes:
+    """ returns salted hashed password
+    """
+    hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+    return hashed_password
+
+
 class Auth:
     """
     Auth class to interact with the authentication database
     """
-    def _hash_password(self, password: str) -> bytes:
-        """ returns salted hashed password
-        """
-        hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
-        return hashed_password
 
     def __init__(self):
         self._db = DB()
@@ -26,7 +28,8 @@ class Auth:
         except Exception as e:
             raise ValueError(f"error: {e}")
         
-        hashed_password = self._hash_password(password)
+        hashed_password = _hash_password(
+                password)
 
         new_user = User(email=email,
                 hashed_password=hashed_password)
