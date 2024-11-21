@@ -33,13 +33,15 @@ class Auth:
     def valid_login(self, email, password) ->bool:
         """ this function validate login
         """
+        user = None
         try:
             user = self._db.find_user_by(email=email)
 
-            if user:
+            if user is not None:
                 if bcrypt.checkpw(password.encode('utf-8'), user.hashed_password):
                     return True
                 else:
                     return False
         except Exception as e:
             return False
+        return False
