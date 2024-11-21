@@ -4,7 +4,7 @@ import bcrypt
 from db import DB
 from user import User
 from sqlalchemy.orm.exc import NoResultFound
-from flask import request
+from flask import request, session
 import uuid
 
 
@@ -51,3 +51,19 @@ class Auth:
         except Exception as e:
             return False
         return False
+
+    def create_session(self, email: str) -> str:
+        """ geneate uuid for user
+        """
+        try:
+            user = self._db.find_user_by(email=email)
+        except NoResultFound:
+            return None
+            if  user is None:
+                return None
+        session_id = _generate_uuid()
+
+        user.session_id = session_id
+        self._db._session.commit()
+
+        return session_id
