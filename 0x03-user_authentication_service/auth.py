@@ -5,6 +5,7 @@ from db import DB
 from user import User
 from sqlalchemy.orm.exc import NoResultFound
 from flask import request
+import uuid
 
 
 def _hash_password(password: str) -> bytes:
@@ -44,3 +45,8 @@ class Auth:
         except Exception as e:
             return False
         return False
+
+    def _generate_uuid() -> str:
+        """ generated uuid
+        """
+        return str(uuid.uuid4())
