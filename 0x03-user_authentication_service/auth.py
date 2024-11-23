@@ -68,6 +68,7 @@ class Auth:
         self._db._session.commit()
 
         return session_id
+
     def get_user_from_session_id(self, session_id: str) -> Union[User, None]:
         """Retrieves a user based on a given session ID.
         """
